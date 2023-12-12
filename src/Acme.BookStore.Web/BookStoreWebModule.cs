@@ -37,6 +37,8 @@ using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.UI;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.AspNetCore.Mvc.AntiForgery;
+using Microsoft.AspNetCore.Http;
 
 namespace Acme.BookStore.Web;
 
@@ -93,6 +95,7 @@ public class BookStoreWebModule : AbpModule
         ConfigureNavigationServices();
         ConfigureAutoApiControllers();
         ConfigureSwaggerServices(context.Services);
+        ConfigureAbpAntiforgeryOptions();
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -171,6 +174,14 @@ public class BookStoreWebModule : AbpModule
                 options.CustomSchemaIds(type => type.FullName);
             }
         );
+    }
+
+    private void ConfigureAbpAntiforgeryOptions()
+    {
+        Configure<AbpAntiForgeryOptions>(options =>
+        {
+            options.TokenCookie.SameSite = SameSiteMode.Strict;
+        });
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
