@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Acme.BookStore.MongoDB;
 using Acme.BookStore.Localization;
 using Acme.BookStore.MultiTenancy;
+using Acme.BookStore.Permissions;
 using Acme.BookStore.Web.Menus;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
@@ -39,6 +40,7 @@ using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.AspNetCore.Mvc.AntiForgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Acme.BookStore.Web;
 
@@ -96,6 +98,7 @@ public class BookStoreWebModule : AbpModule
         ConfigureAutoApiControllers();
         ConfigureSwaggerServices(context.Services);
         ConfigureAbpAntiforgeryOptions();
+        ConfigurePermissionsBook();
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -182,6 +185,17 @@ public class BookStoreWebModule : AbpModule
         {
             options.TokenCookie.SameSite = SameSiteMode.Strict;
         });
+    }
+
+    private void ConfigurePermissionsBook()
+    {
+        Configure<RazorPagesOptions>(options =>
+        {
+            options.Conventions.AuthorizePage("/Books/Index", BookStorePermissions.Books.Default);
+            options.Conventions.AuthorizePage("/Books/CreateModal", BookStorePermissions.Books.Create);
+            options.Conventions.AuthorizePage("/Books/EditModal", BookStorePermissions.Books.Edit);
+        });
+
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
